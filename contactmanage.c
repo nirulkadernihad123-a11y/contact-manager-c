@@ -265,7 +265,6 @@ void deleteContact(void) {
     char ch = getchar();
     if (ch != 'y' && ch != 'Y') { printf("  Cancelled.\n"); pauseScreen(); return; }
 
-    /* shift left */
     for (int i = idx; i < count - 1; i++) contacts[i] = contacts[i + 1];
     count--;
     saveContacts();
