@@ -10,9 +10,7 @@
 #define ADDRESS_LEN  100
 #define DATA_FILE    "contacts.dat"
 
-/* ─────────────────────────────────────────────
-   Data structure
-───────────────────────────────────────────── */
+
 typedef struct {
     int  id;
     char name[NAME_LEN];
@@ -21,16 +19,12 @@ typedef struct {
     char address[ADDRESS_LEN];
 } Contact;
 
-/* ─────────────────────────────────────────────
-   Global state
-───────────────────────────────────────────── */
+
 Contact contacts[MAX_CONTACTS];
 int     count      = 0;
 int     nextId     = 1;
 
-/* ─────────────────────────────────────────────
-   Utility helpers
-───────────────────────────────────────────── */
+
 void clearScreen(void) {
 #ifdef _WIN32
     system("cls");
@@ -44,7 +38,7 @@ void pauseScreen(void) {
     while (getchar() != '\n');
 }
 
-/* Safe line input – reads up to (maxLen-1) chars, strips newline */
+
 void inputLine(const char *prompt, char *dest, int maxLen) {
     printf("%s", prompt);
     if (fgets(dest, maxLen, stdin)) {
@@ -64,9 +58,7 @@ void printHeader(const char *title) {
     printLine('=', 60);
 }
 
-/* ─────────────────────────────────────────────
-   File I/O
-───────────────────────────────────────────── */
+
 void saveContacts(void) {
     FILE *fp = fopen(DATA_FILE, "wb");
     if (!fp) { printf("  [!] Could not save data.\n"); return; }
@@ -78,16 +70,14 @@ void saveContacts(void) {
 
 void loadContacts(void) {
     FILE *fp = fopen(DATA_FILE, "rb");
-    if (!fp) return;   /* first run – no file yet */
+    if (!fp) return;   
     fread(&count,   sizeof(int), 1,     fp);
     fread(&nextId,  sizeof(int), 1,     fp);
     fread(contacts, sizeof(Contact), count, fp);
     fclose(fp);
 }
 
-/* ─────────────────────────────────────────────
-   Display helpers
-───────────────────────────────────────────── */
+
 void printContactRow(const Contact *c) {
     printf("  %-4d %-22s %-15s %s\n",
            c->id, c->name, c->phone, c->email);
@@ -111,20 +101,16 @@ void listAll(void) {
     printf("\n  Total: %d contact(s)\n", count);
 }
 
-/* ─────────────────────────────────────────────
-   Find by ID (returns index or -1)
-───────────────────────────────────────────── */
+
 int findById(int id) {
     for (int i = 0; i < count; i++)
         if (contacts[i].id == id) return i;
     return -1;
 }
 
-/* ─────────────────────────────────────────────
-   CRUD operations
-───────────────────────────────────────────── */
 
-/* 1. ADD */
+
+
 void addContact(void) {
     printHeader("Add New Contact");
 
@@ -136,7 +122,7 @@ void addContact(void) {
     Contact c;
     c.id = nextId++;
 
-    /* flush leftover newline */
+    
     while (getchar() != '\n');
 
     inputLine("  Name    : ", c.name,    NAME_LEN);
@@ -155,14 +141,14 @@ void addContact(void) {
     pauseScreen();
 }
 
-/* 2. VIEW ALL */
+
 void viewAll(void) {
     printHeader("All Contacts");
     listAll();
     pauseScreen();
 }
 
-/* 3. VIEW DETAIL by ID */
+
 void viewDetail(void) {
     printHeader("View Contact Detail");
 
@@ -180,16 +166,16 @@ void viewDetail(void) {
     pauseScreen();
 }
 
-/* 4. SEARCH */
+
 void searchContacts(void) {
     printHeader("Search Contacts");
 
-    while (getchar() != '\n');   /* flush */
+    while (getchar() != '\n');   
 
     char keyword[NAME_LEN];
     inputLine("  Enter name / phone / email keyword: ", keyword, NAME_LEN);
 
-    /* lowercase keyword */
+    
     char kl[NAME_LEN];
     for (int i = 0; keyword[i]; i++) kl[i] = tolower((unsigned char)keyword[i]);
     kl[strlen(keyword)] = '\0';
@@ -199,7 +185,7 @@ void searchContacts(void) {
     printLine('-', 60);
 
     for (int i = 0; i < count; i++) {
-        /* build lowercase versions to compare */
+        
         char n[NAME_LEN], p[PHONE_LEN], e[EMAIL_LEN];
         for (int j = 0; contacts[i].name[j];  j++) n[j] = tolower((unsigned char)contacts[i].name[j]);
         n[strlen(contacts[i].name)] = '\0';
@@ -219,7 +205,7 @@ void searchContacts(void) {
     pauseScreen();
 }
 
-/* 5. EDIT */
+
 void editContact(void) {
     printHeader("Edit Contact");
 
@@ -237,7 +223,7 @@ void editContact(void) {
     printf("\n  Leave a field blank to keep the current value.\n");
     printContactDetail(&contacts[idx]);
 
-    while (getchar() != '\n');   /* flush */
+    while (getchar() != '\n');   
 
     char buf[ADDRESS_LEN];
 
@@ -258,7 +244,7 @@ void editContact(void) {
     pauseScreen();
 }
 
-/* 6. DELETE */
+
 void deleteContact(void) {
     printHeader("Delete Contact");
 
@@ -287,7 +273,7 @@ void deleteContact(void) {
     pauseScreen();
 }
 
-/* 7. SORT by name (simple selection sort) */
+
 void sortByName(void) {
     for (int i = 0; i < count - 1; i++) {
         int min = i;
@@ -307,9 +293,7 @@ void sortContacts(void) {
     pauseScreen();
 }
 
-/* ─────────────────────────────────────────────
-   Main menu
-───────────────────────────────────────────── */
+
 void showMenu(void) {
     printHeader("Main Menu");
     printf("  Contacts stored: %d / %d\n\n", count, MAX_CONTACTS);
